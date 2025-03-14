@@ -1,0 +1,85 @@
+model:
+  model_name: TUAB_SUBCLR
+  type: EEG_ResNet
+  n_classes: 2                  # number of classes
+  in_channels: 21               # number of EEG channel
+  n_time_samples: 2000          # samples per epoch
+  encoder_blocks: 4             # number of res. encoder blocks
+  encoder_conv1_params:         # associated parameters for initial conv
+    - [4, 32, 1]
+    - [8, 32, 1]
+    - [16, 32, 1]
+  encoder_res_params:           # associated parameters for res blocks
+    - [4, 32, 1]
+    - [8, 32, 1]
+    - [16, 32, 1]
+  encoder_pool_size: [4, 4, 4, 4]
+  encoder_dropout_p: False      
+  res_dropout_p: False          # dropout prob for res blocks
+  rep_dim: 96                   # dimensionality of representation
+  head_dims: [256]              # dimensionality of head (hidden)
+  head_out_dim: 32              # dimensionality of head (output)
+  head_batch_norm: True         # batch-norm toggle for head
+  head_dropout_p: False         # dropout prob for head
+  convert_to_TF: False
+  checkpoint_path: null
+  pretrained_path: null 
+
+training:
+  target: [PAT]                 
+  setting: [SSL_PRE]            # SV, SSL_PRE, SSL_LIN, SSL_NL, SSL_FT // GEN_EMB for only generating embeddings
+  finetune_on_subset: True      # whether to do finetuning on the same subset as pretraining
+  subject_level_features: False
+  loss_function: SubCLR         # loss function to be minimized in 'setting'
+  spb: 8                        # only for SubCLR: subjects per batch, [2,4,8,16,32,64,128,256,512] 
+  online_sampling_T: 999        # only for SubCLR: batch sampling done online based on a temperature.
+  use_LARS: True                # whether to use LARS-optimizer. If False, Adam is used.
+  inference_type: channels      # whether to sample single channels or epochs
+  n_augmentations: 0            # only for SSL_PRE: amount of augmentations applied
+  batch_size: 2048              # per GPU
+  num_epochs: 50
+  patience: 999                 # early stopping
+  warmup_epochs: 4
+  model_save_path: /path/to/save/models
+  results_save_path: /path/to/save/results
+  do_test: False
+  num_workers: 6                # per GPU 
+  amp: True                     # Whether to use autocasting (FP16 inference)
+  n_nested_cv: 1 
+  n_outer_folds: [1]           
+  n_train_labels: "ALL" 
+  n_val_labels: 50
+  n_test_labels: 26
+  learning_rate: 0.3
+  weight_decay: 0.0001 
+  T: 0.02                      # SimCLR/SubCLR temperature parameter for loss
+  m: 0.996                      # BYOL EMA parameter
+  embed: all            # subsample, all, or null
+  embed_batch_size: 16
+  random_seed: 0
+  debug: False
+
+# path should contain:
+# ./data/your_dataset.h5
+# ./indices/[batch_size]/[target]_[condition]/subs_per_batch_[spb]/[subclr_batch_name]
+# ./indices/[target]_[condition]_indices.npy
+# Optionally: 
+# ./data/your_test_dataset.h5
+# ./indices/[target]_[condition]_test_indices.npy
+
+dataset:
+  path: /path/to/dataset
+  name: filename_of_the_dataset.h5 # filename of the dataset
+  test_name: filename_of_the_test_dataset.h5 # Options: "null" to subsample the training data or test_name.h5
+  subclr_batch_name: null
+  condition: both
+  sfreq: 200                # EEG sampling frequency
+  preload: False            # Whether to load the entire dataset into RAM prior to training
+  train_subsample: ALL
+  test_subsample: ALL_test      
+
+grid:
+  "target": ["PAT"]
+
+# nohup torchrun --nproc_per_node=1 --master_port 12429 run_DL.py -f config.yaml > ./logs/name.log 2>&1 &!
+  
