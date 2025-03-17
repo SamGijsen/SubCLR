@@ -26,7 +26,7 @@ Learned representations for neurological (left; TUAB) and psychiatric (right; HB
 ## Installation
 
 ```bash
-git clone https://github.com/sami-gijsen/subclr.git
+git clone https://github.com/samgijsen/subclr.git
 cd subclr
 ```
 
