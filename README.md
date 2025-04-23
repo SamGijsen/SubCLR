@@ -1,5 +1,7 @@
 # Self-supervised Learning for Clinical EEG
 
+[Paper Link (OpenReview)](https://openreview.net/forum?id=grDztYhf5w&noteId=grDztYhf5w)
+
 This repository contains the implementation of our paper "Self-supervised Learning for Encoding Between-Subject Information in Clinical EEG". The code allows for systematic evaluation of self-supervised learning (SSL) methods for pathology detection in EEG data.
 
 ![.](./figures/image.png)
